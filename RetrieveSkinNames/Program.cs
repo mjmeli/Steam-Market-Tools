@@ -38,6 +38,7 @@ namespace RetrieveSkinNames
             int i = 0;
             Console.WriteLine("Checking available conditions for each skin...");
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+
             sw.Start();
             foreach (Weapon w in weapons)
             {
@@ -62,6 +63,12 @@ namespace RetrieveSkinNames
                 jsonSerializer.Serialize(file, weapons);
             }
             Console.WriteLine("Done.\n");
+
+            // upload to database
+            using (System.Net.WebClient client = new System.Net.WebClient())
+            {
+                client.UploadData("http://root:easy2crack@104.236.192.200:5984/", "PUT",)
+            }
 
             Console.WriteLine("Complete, press ENTER to exit.");
             Console.ReadLine();
