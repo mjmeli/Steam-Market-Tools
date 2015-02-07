@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<config>
-  <dbCredentials>
-    <host>127.0.0.1</host>
-    <port>80</port>
-    <username>root</username>
-    <password>default</password>
-  </dbCredentials>
-</config>
