@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Newtonsoft.Json;
 
 namespace RetrieveSkinNames
@@ -67,6 +68,7 @@ namespace RetrieveSkinNames
             // upload to database
             using (System.Net.WebClient client = new System.Net.WebClient())
             {
+                
                 client.UploadData("http://root:easy2crack@104.236.192.200:5984/", "PUT",)
             }
 

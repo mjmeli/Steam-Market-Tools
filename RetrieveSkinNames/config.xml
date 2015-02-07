@@ -2,7 +2,8 @@
 <config>
   <dbCredentials>
     <host>127.0.0.1</host>
+    <port>80</port>
     <username>root</username>
-    <password>default</password>
+    <password>easy2track</password>
   </dbCredentials>
 </config>
