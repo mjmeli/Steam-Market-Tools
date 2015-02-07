@@ -39,4 +39,5 @@ Example:
 ### Credits
 
 Lead Software Developer - Michael Meli (mjmeli)
+
 Lead Project Manager - Derek Whatley (djwhatle)
