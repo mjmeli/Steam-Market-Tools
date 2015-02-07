@@ -1,8 +1,0 @@
-<configuration>
-	<dbCredentials>
-		<host>104.236.192.200</host>
-		<port>5984</port>
-		<username>root</username>
-		<password>couchdb_relax</password>
-	</dbCredentials>
-</configuration>
