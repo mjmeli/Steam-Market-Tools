@@ -35,3 +35,11 @@ Example:
         ]
         ...
     }
+
+### Credits
+
+Lead Software Developer - Michael Meli (mjmeli)
+
+Lead Project Architect - Derek Whatley (djwhatle)
+
+Subject Matter Consultant - Nick Kandl
