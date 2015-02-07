@@ -1,0 +1,3 @@
+[submodule "SteamMarketPriceTracking"]
+	path = SteamMarketPriceTracking
+	url = https://github.com/mjmeli/SteamMarketPriceTracking.git
