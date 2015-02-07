@@ -1,0 +1,3 @@
+[submodule "InitialPythonTrendTrack"]
+	path = InitialPythonTrendTrack
+	url = https://github.com/mjmeli/SteamMarketPriceTracking.git
