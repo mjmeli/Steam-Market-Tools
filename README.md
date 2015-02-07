@@ -7,6 +7,8 @@ Please excuse the fragmented repos for now, I am working on getting everything c
 
 This project will create a json file representing every weapon skin available on the Steam CSGO market. It will contain every weapon, it's associated skins, and the available conditions for that skin.
 
+NOTE: Does not include StatTrak™ weapons at the moment.
+
 Example:
 
     {
