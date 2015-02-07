@@ -68,7 +68,7 @@ namespace RetrieveSkinNames
             // upload to database
             using (System.Net.WebClient client = new System.Net.WebClient())
             {
-                client.UploadData("", "PUT",)
+                client.UploadData("", "PUT",);
             }
 
             Console.WriteLine("Complete, press ENTER to exit.");
