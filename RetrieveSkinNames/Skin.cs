@@ -48,17 +48,16 @@ namespace RetrieveSkinNames
         public void GetConditions(Weapon w)
         {
             // check each possible condition
-            List<Task> tasks = new List<Task>(5);
+            List<Task> tasks = new List<Task>(POSSIBLE_CONDITIONS.Length);
             foreach (String str in POSSIBLE_CONDITIONS)
             {
                 String testURL = BASE_URL + w.Name.Replace(" ","%20") + "%20%7C%20" + this.name.Replace(" ","%20") + "%20%28" + str.Replace(" ","%20") + "%29";
                 tasks.Add(new Task(() => CheckCondition(testURL, str)));
             }
-            tasks.ElementAt(0).Start();
-            tasks.ElementAt(1).Start();
-            tasks.ElementAt(2).Start();
-            tasks.ElementAt(3).Start();
-            tasks.ElementAt(4).Start();
+            foreach (Task t in tasks)
+            {
+                t.Start();
+            }
             Task.WaitAll(tasks.ToArray());
         }
 
