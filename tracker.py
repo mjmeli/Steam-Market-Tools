@@ -48,7 +48,7 @@ while True:
 	attempted_requests = 0
 	successful_requests = 0
 
-	session = FuturesSession(executor=ThreadPoolExecutor(max_workers=10))
+	session = FuturesSession(executor=ThreadPoolExecutor(max_workers=5))
 	for weapon_base_name in weapons_list.json().get('weapons'):
 	   #print('Now finding: ' + weapon_base_name.get('name'))
 	   #each item in requests_list[] is an array consisting of [request object, string item name]
@@ -59,7 +59,7 @@ while True:
 	            fully_qualified_weapon_name = weapon_base_name.get('name') + ' | ' + weapon_skin_name.get('name') + ' (' + weapon_condition + ')'
 	            weapon_data_url = 'http://steamcommunity.com/market/priceoverview/?country=US&currency=1&appid=730&market_hash_name=' + fully_qualified_weapon_name
 	            #add one item to the requests list consisting of [request object for later reference, market name]
-	            time.sleep(0.1)
+	            #time.sleep(0.1)
 	            requests_list.append([session.get(weapon_data_url), fully_qualified_weapon_name])
 	            attempted_requests+=1
 
@@ -72,10 +72,9 @@ while True:
 	      else:	     
 	         db_document_data['tracked_items'][request[1]] = request[0].result().json().get('lowest_price').replace('&#36;', '$')
 	         successful_requests+=1
-	         sys.stdout.write("\rRetrieved: " + str(successful_requests) + ' | Failed: ' + str(attempted_requests - successful_requests))
+	         sys.stdout.write("\rRetrieved: " + str(successful_requests))
 	         sys.stdout.flush()
-	print('Successful requests this round: ' + str(successful_requests) + '/' + str(attempted_requests))
-	db_document_data['success_rate'] = round(100 * (successful_requests / attempted_requests), 2)
+	db_document_data['success_rate'] = int((100*(successful_requests / attempted_requests)))
 	
 	#upload data to server
 	uuid = requests.get(dbHost + '_uuids', auth=dbAuth).json().get('uuids')[0]
