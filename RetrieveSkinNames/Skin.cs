@@ -11,7 +11,7 @@ namespace RetrieveSkinNames
     class Skin : ISerializable
     {
         private const string BASE_URL = "http://steamcommunity.com/market/priceoverview/?country=US&currency=1&appid=730&market_hash_name=";
-        private static string[] POSSIBLE_CONDITIONS = { "Battle-Scarred", "Field-Tested", "Minimal Wear", "Factory New" };
+        private static string[] POSSIBLE_CONDITIONS = { "Battle-Scarred", "Well-Worn", "Field-Tested", "Minimal Wear", "Factory New" };
         private const int FAIL_LENGTH = 20;
 
         private String name;
