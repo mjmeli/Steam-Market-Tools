@@ -1,9 +1,11 @@
 #!/usr/bin/python3.4
-import requests, getpass, sys
+import requests, getpass, sys, time
 from requests.auth import HTTPBasicAuth
 from requests_futures.sessions import FuturesSession
+from concurrent.futures import ThreadPoolExecutor
 
-#db connection
+
+#db connection vars
 dbHost = 'http://steamtrack:5984/'
 dbUser = input("db username: ")
 dbPass = getpass.getpass("password: ")
@@ -17,7 +19,7 @@ except:
    print("\ncouchDB host not found: " + dbHost)
    sys.exit()
 
-#found host computer
+#found host computer - print server version
 print("\ncouchDB host found - version " + r.json().get('version'))
 
 #put and remove a new database to determine admin rights
@@ -28,7 +30,7 @@ if r.json().get('error') == 'unauthorized':
    sys.exit()
 
 #get json document containing all gun variations
-r = requests.get(dbHost + 'tracked_steam_item_names/weapons_list', auth=dbAuth)
+weapons_list = requests.get(dbHost + 'tracked_steam_item_names/weapons_list', auth=dbAuth)
 #print(str(r.json()).encode('utf-8').strip())
 
 #for each market item in the document, build a string
@@ -37,17 +39,32 @@ r = requests.get(dbHost + 'tracked_steam_item_names/weapons_list', auth=dbAuth)
 complete_weapon_name = None
 
 #flattened
-s = requests.Session()
-for weapon_base_name in r.json().get('weapons'):
-   
+requests_list = []
+response_list = []
+request_number = 0
+
+session = FuturesSession(executor=ThreadPoolExecutor(max_workers=10))
+for weapon_base_name in weapons_list.json().get('weapons'):
+   print('Now finding: ' + weapon_base_name.get('name'))
+   #requests_list serves as a temporary data-store for 
+   requests_list = [] 
+   response_list = [] 
    for weapon_skin_name in weapon_base_name.get('skins'):
       for weapon_condition in weapon_skin_name.get('conditions'):
-         fully_qualified_weapon_name = weapon_base_name.get('name') + ' | ' + weapon_skin_name.get('name') + ' (' + weapon_condition + ')'
-         weapon_data_url = 'http://steamcommunity.com/market/priceoverview/?country=US&currency=1&appid=730&market_hash_name=' + fully_qualified_weapon_name
-         r = s.get(weapon_data_url)
-         if(r.json().get('lowest_price') is None):
-            print(fully_qualified_weapon_name + ': request failed.')
-         else:
-            print(fully_qualified_weapon_name + ': ' + r.json().get('lowest_price').replace('&#36;', '$'))
+         if not weapon_condition is None:
+            fully_qualified_weapon_name = weapon_base_name.get('name') + ' | ' + weapon_skin_name.get('name') + ' (' + weapon_condition + ')'
+            weapon_data_url = 'http://steamcommunity.com/market/priceoverview/?country=US&currency=1&appid=730&market_hash_name=' + fully_qualified_weapon_name
+            requests_list.append([session.get(weapon_data_url), fully_qualified_weapon_name])
+            request_number += 1
 
-               
+   #one weapon at a time, 
+   for request in requests_list:
+      if 'Access Denied' in str(request[0].result().content): 
+            print(request[1] + ': access denied.')
+      elif request[0].result().json().get('lowest_price') is None:
+            print(request[1] + ': weapon not on market.')
+      else:
+            print(request[1] + ': ' + request[0].result().json().get('lowest_price').replace('&#36;', '$'))
+      
+
+print('Total requests: ' + str(request_number))
