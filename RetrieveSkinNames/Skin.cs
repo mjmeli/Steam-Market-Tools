@@ -51,8 +51,8 @@ namespace RetrieveSkinNames
             List<Task> tasks = new List<Task>(POSSIBLE_CONDITIONS.Length);
             foreach (String str in POSSIBLE_CONDITIONS)
             {
-                String testURL = BASE_URL + w.Name.Replace(" ","%20") + "%20%7C%20" + this.name.Replace(" ","%20") + "%20%28" + str.Replace(" ","%20") + "%29";
-                tasks.Add(new Task(() => CheckCondition(testURL, str)));
+                String testURL = BASE_URL + w.Name + " | " + this.name + " (" + str + ")";
+                tasks.Add(new Task(() => CheckCondition(testURL, str, w.Client)));
             }
             foreach (Task t in tasks)
             {
@@ -66,20 +66,21 @@ namespace RetrieveSkinNames
         /// </summary>
         /// <param name="url">URL to test against</param>
         /// <param name="cond">Condition being tested</param>
-        private void CheckCondition(string url, string cond)
+        private void CheckCondition(string url, string cond, System.Net.WebClient client2)
         {
-            using (System.Net.WebClient client = new System.Net.WebClient())
+            System.Net.WebClient client = new System.Net.WebClient();
+            // check if this exists
+            try
             {
-                // check if this exists
-                try
+                string htmlCode = client.DownloadString(url);
+                if (htmlCode.Length > FAIL_LENGTH)
                 {
-                    string htmlCode = client.DownloadString(url);
                     conditions.Add(cond);
                 }
-                catch (Exception)
-                {
-                    // if the weapon condition does not exist, exception is thrown, so ignore
-                }
+            }
+            catch (Exception)
+            {
+                // if the weapon condition does not exist, exception is thrown, so ignore
             }
         }
 
