@@ -12,6 +12,9 @@ namespace RetrieveSkinNames
     {
         private List<Weapon> weapons;
         private DateTime dt;
+        public String _rev = "";
+
+
 
         public DateTime DateTime
         {
@@ -36,6 +39,10 @@ namespace RetrieveSkinNames
         {
             info.AddValue("datetime", dt, typeof(DateTime));
             info.AddValue("weapons", weapons);
+            if (!String.IsNullOrWhiteSpace(_rev))
+            {
+                info.AddValue("_rev", _rev);
+            }
         }
     }
 }

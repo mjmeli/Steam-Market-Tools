@@ -37,21 +37,21 @@ namespace RetrieveSkinNames
             }
             Console.WriteLine(count + " skins found.\n");
 
-            // get conditions for each skin
-            int i = 0;
-            Console.WriteLine("Checking available conditions for each skin...");
-            foreach (Weapon w in weapons)
-            {
-                foreach (Skin s in w.Skins)
-                {
-                    s.GetConditions(w);
+            //// get conditions for each skin
+            //int i = 0;
+            //Console.WriteLine("Checking available conditions for each skin...");
+            //foreach (Weapon w in weapons)
+            //{
+            //    foreach (Skin s in w.Skins)
+            //    {
+            //        s.GetConditions(w);
 
-                    // progress
-                    i++;
-                    Console.Write("\r{0} of {1}   ", i, count);
-                }
-            }
-            Console.Write("\r{0} of {1}   ", count, count);
+            //        // progress
+            //        i++;
+            //        Console.Write("\r{0} of {1}   ", i, count);
+            //    }
+            //}
+            //Console.Write("\r{0} of {1}   ", count, count);
 
             // serialize to json
             Console.WriteLine("Serializing to JSON...");
@@ -97,15 +97,24 @@ namespace RetrieveSkinNames
                             Console.WriteLine("Ignored exception");
                         }
 
-                        // get uuid
-                        String uuidJson = System.Text.Encoding.UTF8.GetString(client.DownloadData(connString + "_uuids"));
-                        var dsJson = JsonConvert.DeserializeObject<dynamic>(uuidJson);
-                        String uuid = dsJson.uuids[0];
+                        // check document exists
+                        String docExistsJson = System.Text.Encoding.UTF8.GetString(client.DownloadData(connString + "tracked_steam_item_names/weapons_list"));
+                        if (docExistsJson.Contains("_rev"))
+                        {
+                            var dsJson = JsonConvert.DeserializeObject<dynamic>(docExistsJson);
+                            String rev = dsJson._rev;
+                        }
+
+                        // get uuid - no longer using this section - using static document name 
+                        //String uuidJson = System.Text.Encoding.UTF8.GetString(client.DownloadData(connString + "_uuids"));
+                        //var dsJson = JsonConvert.DeserializeObject<dynamic>(uuidJson);
+                        //String uuid = dsJson.uuids[0];
 
                         // push json
                         try
                         {
-                            byte[] response = client.UploadData(connString + "tracked_steam_item_names/" + uuid, "PUT", System.Text.Encoding.UTF8.GetBytes(json));
+                            //byte[] response = client.UploadData(connString + "tracked_steam_item_names/" + uuid, "PUT", System.Text.Encoding.UTF8.GetBytes(json));
+                            byte[] response = client.UploadData(connString + "tracked_steam_item_names/" + "weapons_list", "PUT", System.Text.Encoding.UTF8.GetBytes(json));
                             Console.WriteLine(System.Text.Encoding.UTF8.GetString(response));
                         }
                         catch (Exception ex)
