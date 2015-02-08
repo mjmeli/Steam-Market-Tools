@@ -1,5 +1,5 @@
 #!/usr/bin/python3.4
-import requests, getpass, sys, time, json
+import requests, getpass, sys, time
 from requests.auth import HTTPBasicAuth
 from requests_futures.sessions import FuturesSession
 from concurrent.futures import ThreadPoolExecutor
@@ -31,18 +31,19 @@ if r.json().get('error') == 'unauthorized':
 
 #get json document containing all gun variations
 weapons_list = requests.get(dbHost + 'tracked_steam_item_names/weapons_list', auth=dbAuth)
+#print(str(r.json()).encode('utf-8').strip())
+
 
 #for each market item in the document, build a string a retrieve the appropriate data
+
 while True:
-	db_document_data = {'day_month':None, 'day_week':None, 'time':None, 'success_rate':None, 'tracked_items':{}}
+	db_document_data = {'month_day':None, 'week_day':None, 'time':None, 'tracked_items':{}}
 	
-	db_document_data['day_month'] = time.localtime().tm_mday
-	db_document_data['day_week'] = time.localtime().tm_wday
-	db_document_data['time'] = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
+	db_document_data['month_day'] = time.localtime().tm_mday
+	db_document_data['week_day'] = time.localtime().tm_wday
+	db_document_data['time'] = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min) + ':' + str(time.localtime().tm_sec) 
 
-	access_denied = False
-
-	print("Beginning pass... \n" + str(db_document_data))
+	print(db_document_data)
 
 	#fill out initial data
 	attempted_requests = 0
@@ -50,7 +51,7 @@ while True:
 
 	session = FuturesSession(executor=ThreadPoolExecutor(max_workers=10))
 	for weapon_base_name in weapons_list.json().get('weapons'):
-	   #print('Now finding: ' + weapon_base_name.get('name'))
+	   print('Now finding: ' + weapon_base_name.get('name'))
 	   #each item in requests_list[] is an array consisting of [request object, string item name]
 	   requests_list = [] 
 	   for weapon_skin_name in weapon_base_name.get('skins'):
@@ -66,18 +67,15 @@ while True:
 	   #starting at the beginning of the list
 	   for request in requests_list:
 	      if 'Access Denied' in str(request[0].result().content): 
-	         access_denied = True
-	      elif request[0].result().json().get('lowest_price') is None:	     
+	         print(request[1] + ': access denied.')
+	      elif request[0].result().json().get('lowest_price') is None:
+	         print(request[1] + ': weapon not on market.')
 	         successful_requests+=1
-	      else:	     
-	         db_document_data['tracked_items'][request[1]] = request[0].result().json().get('lowest_price').replace('&#36;', '$')
+	      else:
+	      	lowest_price = request[0].result().json.get('lowest_price').replace('&#36;', '$')
+	         print(request[1] + ': ' + lowest_price)
+	         db_document_data['tracked_items'][request[1]] = lowest_price
 	         successful_requests+=1
-	         sys.stdout.write("\rRetrieved: " + str(successful_requests) + ' | Failed: ' + str(attempted_requests - successful_requests))
-	         sys.stdout.flush()
+	#print(db_document_data)
 	print('Successful requests this round: ' + str(successful_requests) + '/' + str(attempted_requests))
-	db_document_data['success_rate'] = round(100 * (successful_requests / attempted_requests), 2)
-	
-	#upload data to server
-	uuid = requests.get(dbHost + '_uuids', auth=dbAuth).json().get('uuids')[0]
-	r = requests.put(dbHost + 'tracked_steam_item_prices' + '/' + uuid, data=json.dumps(db_document_data))
-	print(r.json());
+
