@@ -68,6 +68,11 @@ namespace RetrieveSkinNames
         /// <param name="cond">Condition being tested</param>
         private void CheckCondition(string url, string cond)
         {
+            if (cond == null)
+            {
+                throw new Exception("Condition string can not be null! URL: " + url);
+            }
+
             using (System.Net.WebClient client = new System.Net.WebClient())
             {
                 // check if this exists
@@ -77,7 +82,7 @@ namespace RetrieveSkinNames
                     if (htmlCode.Length > FAIL_LENGTH)
                     {
                         conditions.Add(cond);
-                    }
+                    }                
                 }
                 catch (Exception)
                 {

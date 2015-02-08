@@ -54,8 +54,9 @@ namespace RetrieveSkinNames
                 }
             }
             Console.Write("\r{0} of {1}   ", count, count);
+            Console.WriteLine("\n");
             sw.Stop();
-            Console.WriteLine(sw.ElapsedMilliseconds);
+            //Console.WriteLine(sw.ElapsedMilliseconds);
 
             // serialize to json
             Console.WriteLine("Serializing to JSON...");
