@@ -55,10 +55,12 @@ namespace RetrieveSkinNames
 
             // serialize to json
             Console.WriteLine("Serializing to JSON...");
+            String weaponsSkinsJson;
             using (System.IO.StreamWriter file = new System.IO.StreamWriter("WeaponsAndSkins.json"))
             {
                 JsonSerializer jsonSerializer = new JsonSerializer();
                 jsonSerializer.Serialize(file, weaponCollection);
+                weaponsSkinsJson = JsonConvert.SerializeObject(weaponCollection);
             }
             Console.WriteLine("Done.\n");
 
@@ -69,6 +71,7 @@ namespace RetrieveSkinNames
                 XmlDocument xml = new XmlDocument();
                 try
                 {
+                    // load configuration from xml
                     String host, port, username, password;
                     xml.Load("config.xml");
                     XmlNode node = xml.DocumentElement.SelectSingleNode("/configuration/dbCredentials");
@@ -76,51 +79,50 @@ namespace RetrieveSkinNames
                     port = node.SelectSingleNode("port").InnerText;
                     username = node.SelectSingleNode("username").InnerText;
                     password = node.SelectSingleNode("password").InnerText;
-
                     connString = "http://" + host + ":" + port + "/";
                     
-                    using (System.IO.StreamReader file = new System.IO.StreamReader("WeaponsAndSkins.json"))
+                    // compile credentials
+                    string creds = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
+                    client.Headers[HttpRequestHeader.Authorization] = string.Format("Basic {0}", creds);
+
+                    // check database exists
+                    try
                     {
-                        // compile credentials
-                        String json = file.ReadToEnd();
-                        string creds = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
-                        client.Headers[HttpRequestHeader.Authorization] = string.Format("Basic {0}", creds);
+                        byte[] response = client.UploadData(connString + "tracked_steam_item_names/", "PUT", System.Text.Encoding.UTF8.GetBytes(""));
+                        Console.WriteLine(System.Text.Encoding.UTF8.GetString(response));
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Ignored exception");
+                    }
 
-                        // check database exists
-                        try
-                        {
-                            byte[] response = client.UploadData(connString + "tracked_steam_item_names/", "PUT", System.Text.Encoding.UTF8.GetBytes(""));
-                            Console.WriteLine(System.Text.Encoding.UTF8.GetString(response));
-                        }
-                        catch (Exception)
-                        {
-                            Console.WriteLine("Ignored exception");
-                        }
+                    // check document exists
+                    String docExistsJson = System.Text.Encoding.UTF8.GetString(client.DownloadData(connString + "tracked_steam_item_names/weapons_list"));
+                    if (docExistsJson.Contains("_rev"))
+                    {
+                        // get _rev id and add it to json
+                        var dsJson = JsonConvert.DeserializeObject<dynamic>(docExistsJson);
+                        String rev = dsJson._rev;
+                        var dsWeaponsSkinsJson = JsonConvert.DeserializeObject<dynamic>(weaponsSkinsJson);
+                        dsWeaponsSkinsJson.Add("_rev", rev);
+                        weaponsSkinsJson = JsonConvert.SerializeObject(dsWeaponsSkinsJson);
+                    }
 
-                        // check document exists
-                        String docExistsJson = System.Text.Encoding.UTF8.GetString(client.DownloadData(connString + "tracked_steam_item_names/weapons_list"));
-                        if (docExistsJson.Contains("_rev"))
-                        {
-                            var dsJson = JsonConvert.DeserializeObject<dynamic>(docExistsJson);
-                            String rev = dsJson._rev;
-                        }
+                    // get uuid - no longer using this section - using static document name 
+                    //String uuidJson = System.Text.Encoding.UTF8.GetString(client.DownloadData(connString + "_uuids"));
+                    //var dsJson = JsonConvert.DeserializeObject<dynamic>(uuidJson);
+                    //String uuid = dsJson.uuids[0];
 
-                        // get uuid - no longer using this section - using static document name 
-                        //String uuidJson = System.Text.Encoding.UTF8.GetString(client.DownloadData(connString + "_uuids"));
-                        //var dsJson = JsonConvert.DeserializeObject<dynamic>(uuidJson);
-                        //String uuid = dsJson.uuids[0];
-
-                        // push json
-                        try
-                        {
-                            //byte[] response = client.UploadData(connString + "tracked_steam_item_names/" + uuid, "PUT", System.Text.Encoding.UTF8.GetBytes(json));
-                            byte[] response = client.UploadData(connString + "tracked_steam_item_names/" + "weapons_list", "PUT", System.Text.Encoding.UTF8.GetBytes(json));
-                            Console.WriteLine(System.Text.Encoding.UTF8.GetString(response));
-                        }
-                        catch (Exception ex)
-                        {
-                            throw ex;
-                        }
+                    // push json
+                    try
+                    {
+                        //byte[] response = client.UploadData(connString + "tracked_steam_item_names/" + uuid, "PUT", System.Text.Encoding.UTF8.GetBytes(json));
+                        byte[] response = client.UploadData(connString + "tracked_steam_item_names/" + "weapons_list", "PUT", System.Text.Encoding.UTF8.GetBytes(json));
+                        Console.WriteLine(System.Text.Encoding.UTF8.GetString(response));
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                 }
                 catch (System.IO.FileNotFoundException)
