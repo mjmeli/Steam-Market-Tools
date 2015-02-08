@@ -74,7 +74,10 @@ namespace RetrieveSkinNames
                 try
                 {
                     string htmlCode = client.DownloadString(url);
-                    conditions.Add(cond);
+                    if (htmlCode.Length > FAIL_LENGTH)
+                    {
+                        conditions.Add(cond);
+                    }
                 }
                 catch (Exception)
                 {
