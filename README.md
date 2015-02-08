@@ -14,28 +14,36 @@ NOTE: Does not include StatTrak™ weapons at the moment.
 Example:
 
     {
-        "name": "AK-47",
-        "skins": [
+        "weapons": [
+            ...
             {
-                "name": "Vulcan",
-                "conditions": [
-                    "Battle-Scarred",
-                    "Factory New",
-                    "Minimal Wear",
-                    "Field-Tested"
+                "name": "AK-47",
+                "skins": [
+                    {
+                        "name": "Vulcan",
+                        "conditions": [
+                            "Battle-Scarred",
+                            "Well-Worn",
+                            "Factory New",
+                            "Minimal Wear",
+                            "Field-Tested"
+                        ]
+                    },
+                    {
+                        "name": "Redline",
+                        "conditions": [
+                            "Battle-Scarred",
+                            "Minimal Wear",
+                            "Well-Worn",
+                            "Field-Tested"
+                        ]
+                    },
+                    ...
                 ]
-            },
-            {
-                "name": "Redline",
-                "conditions": [
-                    "Battle-Scarred",
-                    "Minimal Wear",
-                    "Field-Tested"
-                ]
-            },
+                ...
+            }
             ...
         ]
-        ...
     }
 
 ### Credits
