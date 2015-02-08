@@ -34,7 +34,7 @@ weapons_list = requests.get(dbHost + 'tracked_steam_item_names/weapons_list', au
 
 #for each market item in the document, build a string a retrieve the appropriate data
 while True:
-	db_document_data = {'day_month':None, 'day_week':None, 'time':None, 'success_rate':None, 'tracked_items':{}}
+	db_document_data = {'day_month':None, 'day_week':None, 'time':None, 'tracked_items':{}}
 	
 	db_document_data['day_month'] = time.localtime().tm_mday
 	db_document_data['day_week'] = time.localtime().tm_wday
@@ -59,7 +59,7 @@ while True:
 	            fully_qualified_weapon_name = weapon_base_name.get('name') + ' | ' + weapon_skin_name.get('name') + ' (' + weapon_condition + ')'
 	            weapon_data_url = 'http://steamcommunity.com/market/priceoverview/?country=US&currency=1&appid=730&market_hash_name=' + fully_qualified_weapon_name
 	            #add one item to the requests list consisting of [request object for later reference, market name]
-	            #time.sleep(0.1)
+	            time.sleep(0.1)
 	            requests_list.append([session.get(weapon_data_url), fully_qualified_weapon_name])
 	            attempted_requests+=1
 
@@ -74,7 +74,6 @@ while True:
 	         successful_requests+=1
 	         sys.stdout.write("\rRetrieved: " + str(successful_requests))
 	         sys.stdout.flush()
-	db_document_data['success_rate'] = int((100*(successful_requests / attempted_requests)))
 	
 	#upload data to server
 	uuid = requests.get(dbHost + '_uuids', auth=dbAuth).json().get('uuids')[0]
