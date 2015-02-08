@@ -39,6 +39,8 @@ namespace RetrieveSkinNames
 
             //// get conditions for each skin
             int i = 0;
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
             Console.WriteLine("Checking available conditions for each skin...");
             foreach (Weapon w in weapons)
             {
@@ -52,6 +54,8 @@ namespace RetrieveSkinNames
                 }
             }
             Console.Write("\r{0} of {1}   ", count, count);
+            sw.Stop();
+            Console.WriteLine(sw.ElapsedMilliseconds);
 
             // serialize to json
             Console.WriteLine("Serializing to JSON...");

@@ -13,6 +13,7 @@ namespace RetrieveSkinNames
     {
         private String name;
         private HashSet<Skin> skins;
+        private System.Net.WebClient client;
 
         /// <summary>
         /// Weapon name
@@ -43,6 +44,14 @@ namespace RetrieveSkinNames
         }
 
         /// <summary>
+        /// WebClient object used for requests 
+        /// </summary>
+        public System.Net.WebClient Client
+        {
+            get { return client;  }
+        }
+
+        /// <summary>
         /// Create a new weapon object.
         /// </summary>
         /// <param name="name">Name of the weapon</param>
@@ -50,6 +59,7 @@ namespace RetrieveSkinNames
         {
             this.name = name;
             this.skins = new HashSet<Skin>();
+            this.client = new System.Net.WebClient();
         }
 
         /// <summary>
@@ -62,17 +72,14 @@ namespace RetrieveSkinNames
 
             // get HTML
             HtmlDocument html = new HtmlDocument();
-            using (System.Net.WebClient client = new System.Net.WebClient())
+            string htmlCode = client.DownloadString(URL);
+            if (htmlCode != null)
             {
-                string htmlCode = client.DownloadString(URL);
-                if (htmlCode != null)
-                {
-                    html.LoadHtml(htmlCode);
-                }
-                else
-                {
-                    throw new Exception("Could not load HTML from URL: " + URL);
-                }
+                html.LoadHtml(htmlCode);
+            }
+            else
+            {
+                throw new Exception("Could not load HTML from URL: " + URL);
             }
 
             // extract skin names
