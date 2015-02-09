@@ -46,6 +46,13 @@ Example:
         ]
     }
 
+### tracker.py
+
+After running the 'retrieve skin name' tool, you can pull price data from the Steam store in large quantities with this script. The price data is stored in couchDB in the format 'steam item name':'price usd'.
+
+### Requirements
+tracker.py: requests, requests-futures
+
 ### Credits
 
 Lead Software Developer - Michael Meli (mjmeli)
