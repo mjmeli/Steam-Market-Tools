@@ -42,7 +42,7 @@ while True:
 
 	access_denied = False
 
-	print("Beginning pass... \n" + str(db_document_data))
+	print("Beginning pass: " + db_document_data['time'])
 
 	#fill out initial data
 	attempted_requests = 0
@@ -60,7 +60,7 @@ while True:
 	            weapon_data_url = 'http://steamcommunity.com/market/priceoverview/?country=US&currency=1&appid=730&market_hash_name=' + fully_qualified_weapon_name
 	            #add one item to the requests list consisting of [request object for later reference, market name]
 	            time.sleep(0.1)
-	            requests_list.append([session.get(weapon_data_url), fully_qualified_weapon_name])
+	            requests_list.append([session.get(weapon_data_url, stream=False), fully_qualified_weapon_name])
 	            attempted_requests+=1
 
 	   #starting at the beginning of the list
