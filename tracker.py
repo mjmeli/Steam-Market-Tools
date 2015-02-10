@@ -1,5 +1,5 @@
 #!/usr/bin/python3.4
-import requests, getpass, sys, time, json
+import requests, getpass, sys, time, json, datetime
 from requests.auth import HTTPBasicAuth
 from requests_futures.sessions import FuturesSession
 from concurrent.futures import ThreadPoolExecutor
@@ -76,6 +76,7 @@ while True:
 	         sys.stdout.flush()
 	
 	#upload data to server
-	uuid = requests.get(dbHost + '_uuids', auth=dbAuth).json().get('uuids')[0]
+	#uuid = requests.get(dbHost + '_uuids', auth=dbAuth).json().get('uuids')[0]
+	uuid = datetime.datetime.now()
 	r = requests.put(dbHost + 'tracked_steam_item_prices' + '/' + uuid, data=json.dumps(db_document_data))
 	print(r.json());
