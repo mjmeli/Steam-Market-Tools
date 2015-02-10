@@ -95,22 +95,24 @@ while True:
 
 			#discard some outliers who lie more than 2 stdevs outside of mean
 			cleaned_data = reject_outliers(item_prices)
+			if(len(cleaned_data) > 0):
+				min_price = round(min(cleaned_data),2)
+				max_price = round(max(cleaned_data),2)
+				mean_price = round(mean(cleaned_data), 2)
 
-			min_price = round(min(cleaned_data),2)
-			max_price = round(max(cleaned_data),2)
-			mean_price = round(mean(cleaned_data), 2)
+				mean_sale_volume = round(mean(cleaned_data), 0)
 
-			mean_sale_volume = round(mean(cleaned_data), 0)
+				#calculate fees, assuming you will be buying at the lowest and selling at the highest price
+				fees = round(min_price * 0.15, 2)
+				profit = round(max_price - min_price - fees, 2)
+				percent_gains = round(((profit / min_price) * 100),2)
 
-			#calculate fees, assuming you will be buying at the lowest and selling at the highest price
-			fees = round(min_price * 0.15, 2)
-			profit = round(max_price - min_price - fees, 2)
-			percent_gains = round(((profit / min_price) * 100),2)
+				if mean_sale_volume > 5:
+					steam_item_db.append([request[1], mean_price, profit, percent_gains, mean_sale_volume, request[2]])
 
-			if mean_sale_volume > 5:
-				steam_item_db.append([request[1], mean_price, profit, percent_gains, mean_sale_volume, request[2]])
-
-			successful_requests += 1
+				successful_requests += 1
+			else:
+				json_failures += 1
 			sys.stdout.write("\rRetrieved: " + str(successful_requests) + ' | Parsing failures: ' + str(json_failures))
 			sys.stdout.flush()
 
