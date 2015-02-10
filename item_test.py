@@ -48,7 +48,7 @@ print('max: $' + str(max_price))
 print('mean: $' + str(mean_price))
 
 #calculate fees, assuming you will be buying at the lowest and selling at the highest price
-fees = (min_price * 0.15) + (max_price * 0.15)
+fees = min_price * 0.15
 profit = max_price - min_price - fees
 percent_gains = round(((profit / min_price) * 100),2)
 
