@@ -67,13 +67,21 @@ def poly_calc(graph_data, poly_degree=1):
 
 	return polynomial
 
-def poly_plot(graph_data, poly_degree=1):
+def poly_plot(graph_data, poly_degree=1, buy_price=None, sell_price=None):
 	from matplotlib import pyplot
 	from matplotlib.dates import date2num
+
+
 
 	poly_y = graph_data['polynomial'](graph_data['dates'])
 	pyplot.plot_date(graph_data['dates'], graph_data['prices'], 'o')
 	pyplot.plot_date(graph_data['dates'], poly_y, 'g-')
+	if not buy_price is None:
+		pyplot.axhline(y=buy_price, linewidth=1, color = 'k')
+		#pyplot.plot_date(graph_data['dates'], buy_y, 'g-')
+	if not sell_price is None:
+		pyplot.axhline(y=sell_price, linewidth=1, color = 'k')
+		#pyplot.plot_date(graph_data['dates'], buy_y, 'g-')
 	pyplot.ylabel('y')
 	pyplot.xlabel('x')
 	pyplot.title(graph_data['name'])
@@ -105,10 +113,22 @@ def search_graph_data(graph_data_aggregate, query=None, limit=30):
 		print(str(len(display_options)) + ' matches found. Narrow query.')
 		return False
 
+def get_buy_sell(graph_data, m=1.5):
+	from statistics import mean, stdev
+
+	data_mean = mean(graph_data['prices'])
+	stdev = stdev(graph_data['prices'])
+
+	buy_price = data_mean - (stdev * m)
+	sell_price = data_mean + (stdev * m)
+
+	return buy_price, sell_price
+
+#Needs fixing before deployment
 def remove_outliers(graph_data, m=2):
 	from statistics import mean, stdev
 
-	#Isolate price data
+	#Isolate price data for preliminary mean and stdev calculation
 	prices = []
 
 	for price in graph_data['prices']:
@@ -118,17 +138,19 @@ def remove_outliers(graph_data, m=2):
 	data_stdev = stdev(prices)
 	good_data = []
 
-
-
-	print(graph_data.keys())
-	for data, container in zip(graph_data['prices'], graph_data['dates']):
-		
-		#if the distance from the mean is > 2x the stdev, remove the data
-		if(abs(data_point - data_mean) < (m * data_stdev)):
-			good_data.append(data_point)
+	#Generate a new prices and dates list
+	trimmed_prices = []
+	trimmed_dates = []
+	for price, date in zip(graph_data['prices'], graph_data['dates']):
+		#if the distance from the mean is < 2x the stdev, keep the data
+		if(abs(price - data_mean) < (m * data_stdev)):
+			trimmed_prices.append(price)
+			trimmed_dates.append(date)
 	
+	graph_data['prices'] = trimmed_prices
+	graph_data['dates'] = trimmed_dates
 
-	return good_data
+	return graph_data
 
 #def get_buy_sell_prices(graph_data_aggregate, remove_outliers=True):
 	
@@ -141,18 +163,34 @@ def main():
 
 	#graph_data_aggregate = filter_by_time_delta(graph_data_aggregate, timedelta(days=3))
 
+	graph_date_aggregate_filtered = []
+
 	#Run poly calc on all items in aggregate
+	#for graph_data in graph_data_aggregate:
+	#	graph_date_aggregate_filtered.append(remove_outliers(graph_data))
+
+	#for graph_data in graph_date_aggregate_filtered:
+	#	graph_data['polynomial'] = poly_calc(graph_data)
+
 	for graph_data in graph_data_aggregate:
+		buy_price, sell_price = get_buy_sell(graph_data)
+		graph_data['buy_price'] = buy_price
+		graph_data['sell_price'] = sell_price
 		graph_data['polynomial'] = poly_calc(graph_data)
 	
 	#Sort with lambda function to select appropriate sorting key
-	graph_data_aggregate = sorted(graph_data_aggregate, key=lambda k: k['polynomial'][0]) 
+	graph_data_aggregate = sorted(graph_data_aggregate, key=lambda k: k['polynomial'][0])
+	#graph_data_aggregate_filtered = sorted(graph_data_aggregate_filtered, key=lambda k: k['polynomial'][0]) 
 
 	print('Index: 0-' + str(len(graph_data_aggregate) - 1))
 	while True:
 		search_request = int(input('Show result #: ' ))
 		print(graph_data_aggregate[search_request]['polynomial'])
-		poly_plot(graph_data_aggregate[search_request], 1)
+		buy_at = graph_data_aggregate[search_request]['buy_price']
+		sell_at = graph_data_aggregate[search_request]['sell_price']
+		poly_plot(graph_data_aggregate[search_request], 1, buy_price=buy_at, sell_price=sell_at)
+		#print(graph_data_aggregate_filtered[search_request]['polynomial'])
+		#poly_plot(graph_data_aggregate_filtered[search_request], 1)
 
 if __name__ == '__main__':
 	main()
