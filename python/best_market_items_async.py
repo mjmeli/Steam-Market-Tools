@@ -10,9 +10,9 @@ from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup as bs
 
 #User Settings
-using_couchdb_data = False
+using_couchdb_data = True
 include_graph = True
-historic_length_days = 30
+historic_length_days = 3
 request_spacing = 1 #seconds
 output_html = False
 dbHost = 'http://104.236.192.200:5984/'
